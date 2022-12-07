@@ -7883,7 +7883,6 @@ void CameraHidlTest::verifyLogicalOrUltraHighResCameraMetadata(
             }
         }
 
-        camera_metadata_t* staticMetadata;
         camera_metadata_ro_entry physicalMultiResStreamConfigs;
         camera_metadata_ro_entry physicalStreamConfigs;
         camera_metadata_ro_entry physicalMaxResolutionStreamConfigs;
@@ -7902,9 +7901,8 @@ void CameraHidlTest::verifyLogicalOrUltraHighResCameraMetadata(
 
             ret = subDevice->getCameraCharacteristics([&](auto status, const auto& chars) {
                 ASSERT_EQ(Status::OK, status);
-                staticMetadata = clone_camera_metadata(
-                        reinterpret_cast<const camera_metadata_t*>(chars.data()));
-                ASSERT_NE(nullptr, staticMetadata);
+                const camera_metadata_t* staticMetadata =
+                        reinterpret_cast<const camera_metadata_t*>(chars.data());
                 rc = getSystemCameraKind(staticMetadata, &physSystemCameraKind);
                 ASSERT_EQ(rc, Status::OK);
                 // Make sure that the system camera kind of a non-hidden
@@ -7938,9 +7936,7 @@ void CameraHidlTest::verifyLogicalOrUltraHighResCameraMetadata(
                         verifyCameraCharacteristics(status, chars);
                         verifyMonochromeCharacteristics(chars, deviceVersion);
 
-                        staticMetadata = clone_camera_metadata(
-                                reinterpret_cast<const camera_metadata_t*>(chars.data()));
-                        ASSERT_NE(nullptr, staticMetadata);
+                        auto staticMetadata = (const camera_metadata_t*)chars.data();
                         retcode = find_camera_metadata_ro_entry(
                                 staticMetadata, ANDROID_CONTROL_ZOOM_RATIO_RANGE, &entry);
                         bool subCameraHasZoomRatioRange = (0 == retcode && entry.count == 2);
@@ -8068,7 +8064,6 @@ void CameraHidlTest::verifyLogicalOrUltraHighResCameraMetadata(
                 }
             }
         }
-        free_camera_metadata(staticMetadata);
     }
 
     // If a multi-resolution stream is supported, there must be at least one
